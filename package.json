@@ -1,0 +1,23 @@
+{
+  "name": "to-do-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "export NODE_ENV=test || SET \"NODE_ENV=test\" && mocha test/*.js",
+    "watch-test": "nodemon --exec \"npm test\"",
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": "8.10.0"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.3",
+    "lodash": "^4.17.5",
+    "mongodb": "3.0.6",
+    "mongoose": "^5.0.14"
+  }
+}
