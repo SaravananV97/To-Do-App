@@ -1,4 +1,5 @@
 require("./config/config");
+const authenticate = require("./authenticate/auth")
 const mongoose = require("./Data/mongo");
 const _= require("lodash");
 const bodyparser = require('body-parser');
@@ -8,15 +9,20 @@ const {ObjectID} = require("mongodb");
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
-var newToDo;
+var newToDo,newUser;
 app.use(bodyparser.json());
+
 app.post("/user",(req,res) => {
-var newUser = new UserModel({userid:req.body.userid,email:req.body.email});
-newUser.save().then((doc) => {
-     res.send(doc);
-   },(err) => {res.status(400).send(err);
+var body = _.pick(req.body,["email","password"]);
+newUser = new UserModel(body);
+newUser.save().then(() => {
+     return newUser.generateAuthToken();
+   })
+   .then((token) => {
+     res.header("x-auth",token).send(newUser);
+   }).catch((err) => {res.status(400).send(err);
    });
-});
+ });
 app.post("/todos",(req,res) => {
   newToDo = new ToDoModel({task:req.body.task,completed:false});
    newToDo.save().then((doc) => {
@@ -37,8 +43,12 @@ app.patch("/todos/:id",(req,res) => {
     res.send(doc);
   }).catch((err) => {
     res.status(400).send(err);
-  })
+  });
 });
+
+app.get("/users/me",authenticate,(req,res) => {
+    res.send(req.user);
+  });
 app.delete("/todos/:id",(req,res) => {
   var id = req.params.id;
   if(!ObjectID.isValid(id))
